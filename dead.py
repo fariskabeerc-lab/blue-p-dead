@@ -23,10 +23,12 @@ st.set_page_config(page_title="Dead Stock Dashboard", layout="wide")
 st.title("📊Blue Pearl Stock (Zero Sales and LP before 2025)")
 
 # --- KPIs at Top ---
+df_positive_stock = df[df["Stock"] > 0]   # ✅ consider only rows with stock > 0
+
 col1, col2, col3, col4, col5 = st.columns(5)
-col1.metric("Total Dead Stock Items", f"{len(df):,}")
-col2.metric("Total Stock Qty", f"{df['Stock'].sum():,.0f}")
-col3.metric("Total Stock Value", f"{df['Stock Value'].sum():,.2f}")
+col1.metric("Total Dead Stock Items", f"{len(df_positive_stock):,}")
+col2.metric("Total Stock Qty", f"{df_positive_stock['Stock'].sum():,.0f}")
+col3.metric("Total Stock Value", f"{df_positive_stock['Stock Value'].sum():,.2f}")
 
 # --- High Priority Items (Top 10 by Stock Value) ---
 st.subheader("🚨 High Priority Items (Top 10 by Stock Value)")
