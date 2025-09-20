@@ -20,7 +20,7 @@ df["Stock_clean"] = df["Stock"].clip(lower=0)
 
 # --- Dashboard Layout ---
 st.set_page_config(page_title="Dead Stock Dashboard", layout="wide")
-st.title("📊Blue Pearl Stock(Zero Sales and LP before 2025)")
+st.title("📊Blue Pearl Stock (Zero Sales and LP before 2025)")
 
 # --- KPIs at Top ---
 col1, col2, col3, col4, col5 = st.columns(5)
@@ -33,7 +33,7 @@ st.subheader("🚨 High Priority Items (Top 10 by Stock Value)")
 high_priority = df.nlargest(10, "Stock Value")
 priority_cols = [c for c in ["Item Bar Code","Item Name","Stock","Stock Value","Margin%","Profit",
                              "Cost","Selling","LP Price","LP Date","LP Supplier"] if c in df.columns]
-st.table(high_priority[priority_cols])  # removed gradient to avoid matplotlib dependency
+st.table(high_priority[priority_cols])
 
 # --- Top Items by Stock Value (Horizontal Bar Chart) ---
 st.subheader("Top 20 Items by Stock Value")
@@ -68,15 +68,28 @@ if "Category" in df.columns:
     fig2.update_traces(textinfo="percent+label")
     st.plotly_chart(fig2, use_container_width=True)
 
-
-
 # --- Detailed Data Table (Full Details) ---
 st.subheader("Detailed Dead Stock Items (Full Details)")
+
+# Sorting option
+sort_order = st.radio("Sort by Stock Value:", ["High to Low", "Low to High"], horizontal=True)
+
+if "Stock Value" in df.columns:
+    if sort_order == "High to Low":
+        df_sorted = df.sort_values("Stock Value", ascending=False)
+    else:
+        df_sorted = df.sort_values("Stock Value", ascending=True)
+else:
+    df_sorted = df.copy()
+
+# Select columns for display
 detailed_cols = [c for c in ["Item Bar Code","Item Name","Item No","Stock","Stock Value","Margin%","Profit",
                              "Cost","Selling","LP Price","LP Date","LP Supplier","CF","Unit","Category","Pre Return"] 
                  if c in df.columns]
-st.dataframe(df[detailed_cols])
+
+st.dataframe(df_sorted[detailed_cols])
 
 # --- Download Option ---
-csv = df[detailed_cols].to_csv(index=False).encode('utf-8')
+csv = df_sorted[detailed_cols].to_csv(index=False).encode('utf-8')
 st.download_button("📥 Download Full Dead Stock Data", csv, "dead_stock_full.csv", "text/csv")
+
